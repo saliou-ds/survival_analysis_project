@@ -1,0 +1,6 @@
+r-survival==3.5.5
+r-survminer==0.5.0
+r-dplyr==1.1.3
+r-car==3.1.3
+r-FactoMineR==2.11
+r-explor==0.3.10
