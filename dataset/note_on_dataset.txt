@@ -1,0 +1,25 @@
+Histology: This refers to the microscopic examination of tissue to study the manifestations of disease. 
+
+Study: This refers to the specific research study or trial within the National Wilm's Tumor Study. Each study might have different objectives, protocols, and patient groups.
+
+Subcohort: Within a larger study, a subcohort is a smaller, specific group of patients selected for detailed analysis. 
+
+event is relapse (of the tumor)
+time is in months
+
+pid: Participant ID, a unique identifier for each individual in the dataset.
+event: Indicator of whether the event of interest (e.g., relapse) occurred.
+time: The time duration until the event or censoring (e.g., time to relapse).
+num_age: Numeric variable representing the age of the participant.
+num_stage: Numeric variable representing the stage of the disease.
+fac_stage: Factor variable representing the stage of the disease, but as a categorical variable.
+fac_study: Factor variable indicating the study group the participant belongs to.
+fac_in_subcohort: Factor variable indicating whether the participant is in the subcohort.
+fac_instit: Histology Factor variable indicating that based on the local institution where the participant was diagnosed. they categorize the tumor as :
+1: 'Favourable' associated with better prognosis and higher survival rates
+2: 'Unfavourable' associated with poorer prognosis and lower survival rates.
+fac_histol: Histology Factor variable indicating that based on the central lab. they categorize the tumor as
+1: 'Favourable' associated with better prognosis and higher survival rates
+2: 'Unfavourable' associated with poorer prognosis and lower survival rates.
+
+The National Wilm's Tumor Study focuses on the prognosis of Wilm's tumor, a type of kidney cancer that primarily affects children. The dataset is used to analyze the impact of tumor histology on survival rates, comparing histology results from local institutions with those from a central lab.
