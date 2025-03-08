@@ -23,14 +23,12 @@ test <- df[-trainIndex, ]
 
 
 #recode
-train <- train %>% select(-num_stage)
-train$fac_in_subcohort <- ifelse(train$fac_in_subcohort == 'True' , 0, 1)
+train$fac_in_subcohort <- ifelse(train$fac_in_subcohort == 'True' , 3, 0.5)
 train$fac_instit <- ifelse(train$fac_instit == 'Favourable' , 0, 1)
 train$fac_histol <- ifelse(train$fac_histol == 'Favourable' , 0, 1)
 train$fac_study <- ifelse(train$fac_study == 3 , 0, 1)
 
-test <- test %>% select(-num_stage)
-test$fac_in_subcohort <- ifelse(test$fac_in_subcohort == 'True' , 0, 1)
+test$fac_in_subcohort <- ifelse(test$fac_in_subcohort == 'True' , 3, 0.5)
 test$fac_instit <- ifelse(test$fac_instit == 'Favourable' , 0, 1)
 test$fac_histol <- ifelse(test$fac_histol == 'Favourable' , 0, 1)
 test$fac_study <- ifelse(test$fac_study == 3 , 0, 1)
@@ -66,7 +64,7 @@ ggsurvplot(km_fit,
            pval = TRUE,    # when multiple groups automatically performs a log-rank test and displays the p-value, which tests the null hypothesis that there is no difference between the survival curves 
            
            ggtheme = theme_survminer(),
-           title = "Kaplan-Meier Survival Curve (Data Frame)",
+           title = "Kaplan-Meier Survival Curve for in_subcohort",
            risk.table.height = 0.35,  # Adjust the height of the risk table
            #xlim = c(2000, 2014),
            xlab = "Time (months)",
@@ -83,7 +81,7 @@ ggsurvplot(km_fit,
            pval = TRUE,    # when multiple groups automatically performs a log-rank test and displays the p-value, which tests the null hypothesis that there is no difference between the survival curves 
            
            ggtheme = theme_survminer(),
-           title = "Kaplan-Meier Survival Curve (Data Frame)",
+           title = "Kaplan-Meier Survival Curve for instit",
            risk.table.height = 0.35,  # Adjust the height of the risk table
            #xlim = c(2000, 2014),
            xlab = "Time (months)",
@@ -100,7 +98,7 @@ ggsurvplot(km_fit,
            pval = TRUE,    # when multiple groups automatically performs a log-rank test and displays the p-value, which tests the null hypothesis that there is no difference between the survival curves 
            
            ggtheme = theme_survminer(),
-           title = "Kaplan-Meier Survival Curve (Data Frame)",
+           title = "Kaplan-Meier Survival Curve for histol",
            risk.table.height = 0.35,  # Adjust the height of the risk table
            #xlim = c(2000, 2014),
            xlab = "Time (months)",
@@ -117,7 +115,7 @@ ggsurvplot(km_fit,
            pval = TRUE,    # when multiple groups automatically performs a log-rank test and displays the p-value, which tests the null hypothesis that there is no difference between the survival curves 
            
            ggtheme = theme_survminer(),
-           title = "Kaplan-Meier Survival Curve (Data Frame)",
+           title = "Kaplan-Meier Survival Curve for stage",
            risk.table.height = 0.35,  # Adjust the height of the risk table
            #xlim = c(2000, 2014),
            xlab = "Time (months)",
@@ -133,7 +131,7 @@ ggsurvplot(km_fit,
            pval = TRUE,    # when multiple groups automatically performs a log-rank test and displays the p-value, which tests the null hypothesis that there is no difference between the survival curves 
            
            ggtheme = theme_survminer(),
-           title = "Kaplan-Meier Survival Curve (Data Frame)",
+           title = "Kaplan-Meier Survival Curve for study",
            risk.table.height = 0.35,  # Adjust the height of the risk table
            #xlim = c(2000, 2014),
            xlab = "Time (months)",
@@ -155,7 +153,7 @@ univariate_results <- lapply(predictor_vars, function(x) { # univariate Cox regr
 
 print(univariate_results)
 
-significant_predictors <- c("num_age", "fac_stage", "fac_study", "fac_instit","fac_histol") #  p-value <0.05 from the Wald test  # sapply Simplifies the result to a vector or matrix if possible.
+significant_predictors <- c("num_age", "fac_stage", "fac_instit","fac_histol") #  p-value <0.05 from the Wald test  # sapply Simplifies the result to a vector or matrix if possible.
 
 print(significant_predictors)
 #All the categorial variable that have significant differences into them are significant predictors
@@ -164,6 +162,9 @@ print(significant_predictors)
 
 cor_matrix <- cor(train[, significant_predictors])
 View(cor_matrix)
+
+# Export correlation matrix as csv
+write.csv(cor_matrix, "Table1_correlation_matrix.csv")
 
 # fac_histol and fac_instit are correlated. We are going to keep the better predictor.
 summary(coxph(Surv(time, event) ~ fac_instit, data = train))
@@ -206,39 +207,51 @@ concordance_test <- concordance(surv_obj_test ~ test$predicted_risk)
 print(concordance_test)
 
 
-
-
-
-
-
-
-x <- model.matrix(Surv(time, event) ~ ., data = train)[, -1]
-y <- Surv(train$time, train$event)
-lasso_model <- cv.glmnet(x, y, family = "cox", alpha = 1)
-ridge_model <- cv.glmnet(x, y, family = "cox", alpha = 0)
-elastic_net_model <- cv.glmnet(x, y, family = "cox", alpha = 0.5)
+# Cox model
+cox_model_weighted <- coxph(Surv(train$time, train$event) ~ tt(num_age + num_stage) + strata(fac_stage) + strata(fac_histol) , data = train, tt = function(x, t, ...) (-x) * log(t) , weights = fac_in_subcohort)
+# Summarize the model
+summary(cox_model_weighted)
 
 # Evaluate the model on the test set
-test <- test %>% select(-predicted_risk)
-test_matrix <- model.matrix(~ ., data = test %>% select(-event, -time) )[, -1]
-test$predicted_risk <- predict(lasso_model, newx = test_matrix, type = "link")
+test$predicted_risk <- predict(cox_model_weighted, newdata = test, type = "risk")
 surv_obj_test <- Surv(test$time, test$event)
 concordance_test <- concordance(surv_obj_test ~ test$predicted_risk)
 print(concordance_test)
 
-# Evaluate the model on the test set
-test <- test %>% select(-predicted_risk)
-test_matrix <- model.matrix(~ ., data = test %>% select(-event, -time) )[, -1]
-test$predicted_risk <- predict(ridge_model, newx = test_matrix, type = "link")
-surv_obj_test <- Surv(test$time, test$event)
-concordance_test <- concordance(surv_obj_test ~ test$predicted_risk)
-print(concordance_test)
 
-# Evaluate the model on the test set
-test <- test %>% select(-predicted_risk)
-test_matrix <- model.matrix(~ ., data = test %>% select(-event, -time) )[, -1]
-test$predicted_risk <- predict(elastic_net_model, newx = test_matrix, type = "link")
-surv_obj_test <- Surv(test$time, test$event)
-concordance_test <- concordance(surv_obj_test ~ test$predicted_risk)
-print(concordance_test)
+
+############################################################################################
+
+
+# Exploration and test on the lasso model, ridge model and elastic net model for my problem
+
+# x <- model.matrix(Surv(time, event) ~ ., data = train)[, -1]
+# y <- Surv(train$time, train$event)
+# lasso_model <- cv.glmnet(x, y, family = "cox", alpha = 1)
+# ridge_model <- cv.glmnet(x, y, family = "cox", alpha = 0)
+# elastic_net_model <- cv.glmnet(x, y, family = "cox", alpha = 0.5)
+# 
+# # Evaluate the model on the test set
+# test <- test %>% select(-predicted_risk)
+# test_matrix <- model.matrix(~ ., data = test %>% select(-event, -time) )[, -1]
+# test$predicted_risk <- predict(lasso_model, newx = test_matrix, type = "link")
+# surv_obj_test <- Surv(test$time, test$event)
+# concordance_test <- concordance(surv_obj_test ~ test$predicted_risk)
+# print(concordance_test)
+# 
+# # Evaluate the model on the test set
+# test <- test %>% select(-predicted_risk)
+# test_matrix <- model.matrix(~ ., data = test %>% select(-event, -time) )[, -1]
+# test$predicted_risk <- predict(ridge_model, newx = test_matrix, type = "link")
+# surv_obj_test <- Surv(test$time, test$event)
+# concordance_test <- concordance(surv_obj_test ~ test$predicted_risk)
+# print(concordance_test)
+# 
+# # Evaluate the model on the test set
+# test <- test %>% select(-predicted_risk)
+# test_matrix <- model.matrix(~ ., data = test %>% select(-event, -time) )[, -1]
+# test$predicted_risk <- predict(elastic_net_model, newx = test_matrix, type = "link")
+# surv_obj_test <- Surv(test$time, test$event)
+# concordance_test <- concordance(surv_obj_test ~ test$predicted_risk)
+# print(concordance_test)
 

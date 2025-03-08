@@ -1,18 +1,45 @@
-# survival_analysis
+# Survival Analysis of Wilms' Tumor
+
+## Introduction
+This repository contains the R scripts and data analysis for the research project titled "Survival Analysis of Wilms Tumor." The study aims to understand the factors influencing relapse in patients with Wilms' tumor, a type of kidney cancer primarily affecting children.
+
+## Problem Statement
+Wilms' tumor remains a significant health concern despite advances in treatment. This study focuses on analyzing the time until relapse and the effectiveness of new treatments, considering factors such as age, stage of the disease, and histology.
+
+## Data
+The study was conducted on a cohort of 4028 patients diagnosed with Wilms' tumor. Data were collected on various factors, including age, stage of the disease, and histology.
+
+## Methodology
+The research utilized a two-phase study design:
+1. **Phase 1**: Initial screening of a large cohort.
+2. **Phase 2**: Detailed analysis of a subset of patients.
+
+### Statistical Analysis
+- **Survival Analysis**: Kaplan-Meier estimates and Cox proportional hazards models.
+- **Handling Censoring**: Appropriate methods for censored data.
+- **Software**: R, with key packages including `survival` and `survminer`.
+
+## Results
+Key findings include:
+- Age at diagnosis, stage of the disease, and histological classification significantly influence the time until tumor relapse.
+- The Kaplan-Meier survival curves and Cox model results are provided in the report.
+
+## Conclusion
+The study highlights the importance of age, tumor stage, and histological prognosis in predicting survival outcomes for Wilms' tumor patients. Future research should focus on improving measurement accuracy and exploring additional prognostic factors.
+
+## Repository Structure
+- `dataset/`: Contains the dataset used for analysis.
+- `survival.r`: R scripts for data preparation, analysis, and visualization.
+- `results/`: Output files, including survival curves and model diagnostics.
 
 
-# Dataset 
-Bankruptcy prediction dataset for american companies in the stock market
-Bankruptcy prediction dataset related to the american companies in the stock market (1999-2018)
+## Authors
+- Saliou CISSE
+- Ethan ADA
+- Mohamed AL JALANJI
 
-We provide a novel dataset for Bankruptcy prediction related to the public companies in the American Stock market (New York Stock Exchange and NASDAQ). We collected accounting data from 8262 different companies in the period between 1999 and 2018.
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-According to the Security Exchange 146 Commission (SEC) a company in the American market is considered bankrupt in two cases: • If the firm’s management files Chapter 11 of the Bankruptcy Code to "reorganize" its business: Management continues to run the day-to-day business operations but all significant business decisions must be approved by a bankruptcy court. • If the firm’s management files Chapter 7 of the Bankruptcy Code: the company stops all operations and goes completely out of business.
-
-When these events occur we label the fiscal year before the chapter filling as "Bankruptcy" (1) for the next year. Otherwise, the company is considered alive (0). he dataset has no missing values or synthetic and imputed added values. Finally, the resulting dataset of 78682 firm-year observations can be divided into three subsets according to the period of time: a training set, a validation set, and a test set. We used data from 1999 until 2011 for training, data from 2012 until 2014 for validation and model comparison, and the remaining years from 2015 to 2018 as a test-set to prove the ability of the models to predict bankruptcy in real never seen cases.
-
-The non-anonymized version of this dataset can NOT be available because of the license used to retrieve the dataset.
-Citation Request:
-
-Pellegrino, M., Lombardo, G., Adosoglou, G., Cagnoni, S., Pardalos, P. M., & Poggi, A. (2024). A Multi-Head LSTM Architecture for Bankruptcy Prediction with Time Series Accounting Data. Future Internet, 16(3), 79.
-Machine Learning for Bankruptcy Prediction in the American Stock Market: Dataset and Benchmarks - Future Internet MDPI 2022
+## Acknowledgments
+We would like to thank the National Wilms Tumor Study Group and the Children's Oncology Group for providing the data and resources for this research.
